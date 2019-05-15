@@ -1,11 +1,11 @@
 print "Enter side A of a triangle: "
-a = gets.chomp.to_f
+a = gets.to_f
 
 print "Enter side B of a triangle: "
-b = gets.chomp.to_f
+b = gets.to_f
 
 print "Enter side C of a triangle: "
-c = gets.chomp.to_f
+c = gets.to_f
 
 cathetus1, cathetus2, hypotenuse = [a, b, c].sort
 
@@ -15,8 +15,10 @@ equilateral_triangle = cathetus1 == hypotenuse
 
 if equilateral_triangle
   puts "Triangle is isosceles and equilateral!"
+elsif right_isosceles_triangle
+  puts "Triangle is rectangular and isosceles!"
 elsif right_triangle
-  puts "Triangle is rectangular#{" and isosceles" if right_isosceles_triangle}!"
+  puts "Triangle is rectangular!"
 else
   puts "Triangle isn't rectangular!"
 end

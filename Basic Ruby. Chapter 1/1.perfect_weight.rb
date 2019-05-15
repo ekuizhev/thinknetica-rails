@@ -2,7 +2,7 @@ print "Enter your name: "
 person_name = gets.chomp.capitalize
 
 print "Enter your height: "
-person_height = gets.chomp.to_i
+person_height = gets.to_i
 
 perfect_weight = person_height - 110
 

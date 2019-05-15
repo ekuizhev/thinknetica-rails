@@ -8,12 +8,12 @@ print "Enter c: "
 c = gets.chomp.to_f
 
 d = b**2 - 4 * a * c
-d_sqrt = Math.sqrt(d)
+sqrt = Math.sqrt(d)
 
 if d > 0
-  x1 = (-b + d_sqrt) / (2 * a)
-  x2 = (-b - d_sqrt) / (2 * a)
-  puts "D = #{D}"
+  x1 = (-b + sqrt) / (2 * a)
+  x2 = (-b - sqrt) / (2 * a)
+  puts "D = #{d}"
   puts "x1 = #{x1}"
   puts "x2 = #{x2}"
 elsif d == 0

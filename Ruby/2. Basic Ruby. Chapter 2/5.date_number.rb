@@ -14,6 +14,6 @@ date_number = 0
 (1...month).each do |m|
   date_number += mdays[m]
 end
-date_number += day - 1
+date_number += day
 
 puts date_number

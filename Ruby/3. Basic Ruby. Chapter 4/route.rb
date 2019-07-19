@@ -1,23 +1,19 @@
 class Route
+  attr_reader :stations
+
   def initialize(source, destination)
-    @source = source
-    @destination = destination
-    @intermediates = []
+    @stations = [source, destination]
   end
 
   def add(station)
-    @intermediates << station
+    @stations.insert(-2, station)
   end
 
   def remove(station)
-    @intermediates.delete(station)
+    @stations.delete(station)
   end
 
   def show_stations
-    [@source, *@intermediates, @destination].each {|r| puts r.name}
-  end
-
-  def stations
-    [@source, *@intermediates, @destination]
+    @stations.each {|station| puts station.name}
   end
 end

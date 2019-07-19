@@ -23,7 +23,9 @@ train1.go_to_next_station
 # puts "slavyansk trains: ", slavyansk.trains
 # puts "krasnodar trains: ", krasnodar.trains
 
-train1.show_station
+puts train1.current_station.name
+puts train1.next_station.name
+puts train1.previous_station.name
 
 
 train2 = Train.new("22222", "passenger", 6)

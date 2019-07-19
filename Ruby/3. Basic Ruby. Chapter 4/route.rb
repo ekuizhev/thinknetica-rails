@@ -10,6 +10,8 @@ class Route
   end
 
   def remove(station)
+    return if @stations.count == 2
+    
     @stations.delete(station)
   end
 

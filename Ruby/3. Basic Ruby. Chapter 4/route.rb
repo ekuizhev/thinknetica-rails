@@ -10,7 +10,7 @@ class Route
   end
 
   def remove(station)
-    return if @stations.count == 2
+    return if [@stations.first, @stations.last].include?(station)
     
     @stations.delete(station)
   end

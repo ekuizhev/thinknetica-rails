@@ -1,6 +1,6 @@
 class RailRoad
-  attr_reader :stattions, :trains, :routes, :wagons
-  @@menu = [
+  attr_reader :stations, :trains, :routes, :wagons
+  MENU = [
     # ------ Основное меню ------
     %{Введите 1, чтобы создать станцию, поезд, вагон или маршрут
       Введите 2, чтобы произвести операции с созданными объектами
@@ -36,7 +36,8 @@ class RailRoad
       Введите 2 <имя станции>, чтобы просмотреть список поездов на станции
       Введите menu, чтобы выйти в главное меню
       Введите 0, чтобы выйти\n\n}.gsub(/[[:blank:]]{2,}/, "")
-  ]
+  ].freeze
+  ALLOWED_SUB_CATEGORIES = [1, 2, 3].freeze
 
   def initialize(stations = [], trains = [], routes = [], wagons = [])
     @stations = stations
@@ -51,194 +52,283 @@ class RailRoad
     @routes << Route.new("foobar", @stations.first, @stations.last)
     @stations << Station.new("baz")
     @routes.first.add(@stations.last)
-    @trains << Train.new("111", "cargo")
+    @trains << CargoTrain.new("111")
     @trains.last.set_route(@routes.last)
   end
 
   def menu
-    allowed_categories = [1, 2, 3]
-    is_main_menu = true
-    sub_menu_number = nil
-    message = nil
+    options = {
+      main_menu: true,
+      sub_menu_number: nil,
+      message: nil,
+      is_exit: false,
+      showed_data: nil
+    }
 
-    loop do
-      # очистка консоли
-      # system("clear") || system("cls")
-      puts message unless message.nil?
-      message = nil
-      
-      # если запрос был из главного меню
-      if is_main_menu
-        puts @@menu[0]
+    loop do            
+      # работа с подкатегориями
+      until options[:main_menu] do
+        clear_console
+        print_notification(options)
 
-        user_input = gets.chomp!
-        break if user_input == "0"
-        
-        begin
-          user_input = Integer(user_input)
-          raise ArgumentError unless allowed_categories.include?(user_input)
-          
-          sub_menu_number = user_input
-          is_main_menu = false
-        rescue ArgumentError
-          message = warning_command_message(user_input)
-        end
-
-        next
+        handle_sub_menu(options)
+        break if options[:is_exit]
       end
-      
-      # если запрос был не из гланвого меню
-      puts @@menu[sub_menu_number]
 
-      user_input = gets.chomp!
+      # показать главное меню
+      if options[:main_menu]
+        clear_console
+        print_notification(options)
 
-      if user_input == "menu"
-        is_main_menu = true
-        next
+        handle_main_menu(options)
       end
-      break if user_input == "0"
 
-      commands = user_input.split(" ")
-      # Создание станции
-      if sub_menu_number == 1 && commands[0] == "1" && !commands[1].nil?
-        name = commands[1]
-        @stations << Station.new(name)
-        message = info_message("Станция была успешно создана!")
-      # Создание поезда
-      elsif sub_menu_number == 1 && commands[0] == "2" && !commands[1].nil? && Train.allowed_types.include?(commands[2])
-        number = commands[1]
-        type = commands[2]
-        @trains << Train.new(number, type)
-        message = info_message("Поезд был успешно создан!")
-      # Создание маршрута
-      elsif sub_menu_number == 1 && commands[0] == "3" && !commands[1].nil? && !commands[2].nil? && !commands[3].nil?
-        route_number = commands[1]
-        sourse_station = commands[2]
-        destination_station = commands[3]
-        @routes << Route.new(route_number, sourse_station, destination_station)
-        message = info_message("Маршрут был успешно создан!")
-      # Добавить станцию в маршрут
-      elsif sub_menu_number == 2 && commands[0] == "1" && !commands[1].nil? && !commands[2].nil?
-        route_number = commands[1]
-        station_name = commands[2]
-        route = @routes.detect { |route| route.number == route_number }
-        station = @stations.detect { |station| station.name == station_name }
-
-        if !route.nil? && !station.nil?
-          result = route.add(station)
-          message = info_message("Станция успешно добавлена в маршрут!") unless result.nil?
-          message = warning_message("Не удалось добавить станцию в маршрут!") if result.nil?
-        else
-          text = "Не удалось найти станцию или маршрут! Или вы пытаетесь добавить станцию, которая уже существует!"
-          message = warning_message(text)
-        end
-      # Удалить станцию из маршрута
-      elsif sub_menu_number == 2 && commands[0] == "2" && !commands[1].nil? && !commands[2].nil?
-        route_number = commands[1]
-        station_name = commands[2]
-        route = @routes.detect { |route| route.number == route_number }
-        station = @stations.detect { |station| station.name == station_name }
-
-        if !route.nil? && !station.nil?
-          result = route.remove(station)
-          message = info_message("Станция успешно удалена из маршрута!") unless result.nil?
-          message = warning_message("Не удалось удалить станцию из маршрута!") if result.nil?
-        else
-          text = "Не удалось найти станцию или маршрут!"
-          message = warning_message(text)
-        end
-      # Назначить маршрут поезду
-      elsif sub_menu_number == 2 && commands[0] == "3" && !commands[1].nil? && !commands[2].nil?
-        route_number = commands[1]
-        train_number = commands[2]
-        route = @routes.detect { |route| route.number == route_number }
-        train = @trains.detect { |train| train.number == train_number }
-
-        if !route.nil? && !train.nil?
-          train.set_route(route)
-          message = info_message("Маршрут успешно установлен для поезда!")
-        else
-          text = "Не удалось найти поезд или маршрут!"
-          message = warning_message(text)
-        end
-      # Добавить вагон к поезду
-      elsif sub_menu_number == 2 && commands[0] == "4" && !commands[1].nil?
-        train_number = commands[1]
-        train = @trains.detect { |train| train.number == train_number }
-
-        unless train.nil?
-          wagon = Wagon.new(train.type)
-          train.add_wagon(wagon)
-          message = info_message("Вагон успешно добавлен к поезду!")
-        else
-          text = "Не удалось найти поезд!"
-          message = warning_message(text)
-        end
-      # Отцепить вагон от поезду
-      elsif sub_menu_number == 2 && commands[0] == "5" && !commands[1].nil?
-        train_number = commands[1]
-        train = @trains.detect { |train| train.number == train_number }
-
-        unless train.nil?
-          train.remove_last_wagon
-          message = info_message("Вагон успешно отцеплен от поезда!")
-        else
-          text = "Не удалось найти поезд!"
-          message = warning_message(text)
-        end
-      # Отправить поезд по маршруту к следующей станции
-      elsif sub_menu_number == 2 && commands[0] == "6" && !commands[1].nil?
-        train_number = commands[1]
-        train = @trains.detect { |train| train.number == train_number }
-        
-        unless train.nil?
-          result = train.go_to_next_station
-          message = info_message("Поезд отправился на следующую станцию по маршруту!") unless result.nil?
-          message = warning_message("Поезд не смог отправиться к следующий станции,"\
-            " возможно маршрут не задан или поезд уже находится на конечной станции!") if result.nil?
-        else
-          text = "Не удалось найти поезд!"
-          message = warning_message(text)
-        end
-      # Отправить поезд по маршруту к следующей станции
-      elsif sub_menu_number == 2 && commands[0] == "7" && !commands[1].nil?
-        train_number = commands[1]
-        train = @trains.detect { |train| train.number == train_number }
-        
-        unless train.nil?
-          result = train.go_to_prev_station
-          message = info_message("Поезд отправился на предыдущую станцию по маршруту!") unless result.nil?
-          message = warning_message("Поезд не смог отправиться к предыдущей станции,"\
-            " возможно маршрут не задан или поезд уже находится на начальной станции!") if result.nil?
-        else
-          text = "Не удалось найти поезд!"
-          message = warning_message(text)
-        end
-      # Вывод всех станций
-      elsif sub_menu_number == 3 && commands[0] == "1"
-        puts "\n------------- Станции -------------"
-        @stations.each { |station| puts station.name }
-        puts "-----------------------------------\n\n"
-      # Вывод всех станций
-      elsif sub_menu_number == 3 && commands[0] == "2" && !commands[1].nil?
-        station_name = commands[1]
-        station = @stations.detect { |station| station.name == station_name }
-
-        unless station.nil?
-          puts "------ Поезда на станции: #{station_name} ------"
-          station.trains.each { |train| puts train.number }
-          puts "-----------------------------------\n\n"
-        else
-          text = "Не удалось найти станцию!"
-          message = warning_message(text)
-        end
-      else
-        message = warning_command_message(user_input)
-      end
+      break if options[:is_exit]  
     end
   end
 
   private
+
+  def clear_console
+    system("clear") || system("cls")
+  end
+
+  def print_notification(options)
+    # сообщение о проделанной операции или ошибке
+    puts options[:message] unless options[:message].nil?
+    options[:message] = nil
+    # вывод содержимого
+    puts options[:showed_data] unless options[:showed_data].nil?
+    options[:showed_data] = nil
+  end
+
+  def handle_main_menu(options)
+    puts MENU[0]
+    user_input = gets.chomp!
+    
+    if user_input == "0"
+      options[:is_exit] = true and return
+    end
+    
+    begin
+      user_input = Integer(user_input)
+      raise ArgumentError unless ALLOWED_SUB_CATEGORIES.include?(user_input)
+      
+      options[:sub_menu_number] = user_input
+      options[:main_menu] = false
+    rescue ArgumentError
+      options[:message] = warning_command_message(user_input)
+    end
+  end
+
+  def handle_sub_menu(options)
+    puts MENU[options[:sub_menu_number]]
+    user_input = gets.chomp!
+    
+    if user_input == "menu"
+      options[:main_menu] = true and return
+    end
+    
+    if user_input == "0"
+      options[:is_exit] = true and return
+    end
+    
+    has_error = false
+    sub_menu_number = options[:sub_menu_number]
+    commands = user_input.split(" ")
+
+    # если создание
+    if sub_menu_number == 1
+      command_valid = create(options, commands)
+    # если модификация
+    elsif sub_menu_number == 2
+      command_valid = modificate(options, commands)
+    # иначе отображение sub_menu_number == 3
+    else
+      command_valid = show(options, commands)
+    end
+    
+    options[:message] = warning_command_message(user_input) unless command_valid
+  end
+
+  def create(options, commands)
+    command_valid = true
+    # Создание станции
+    if commands[0] == "1" && !commands[1].nil?
+      name = commands[1]
+      @stations << Station.new(name)
+      options[:message] = info_message("Станция была успешно создана!")
+    # Создание поезда
+    elsif commands[0] == "2" && !commands[1].nil? && Train::ALLOWED_TYPES.include?(commands[2])
+      number = commands[1]
+      type = commands[2]
+      
+      if type == "cargo"
+        @trains << CargoTrain.new(number)
+      else
+        @trains << PassangerTrain.new(number)
+      end
+        
+      options[:message] = info_message("Поезд был успешно создан!")
+    # Создание маршрута
+    elsif commands[0] == "3" && !commands[1].nil? && !commands[2].nil? && !commands[3].nil?
+      route_number = commands[1]
+      sourse_station = commands[2]
+      destination_station = commands[3]
+      @routes << Route.new(route_number, sourse_station, destination_station)
+      options[:message] = info_message("Маршрут был успешно создан!")
+    else
+      command_valid = false
+    end
+
+    command_valid
+  end
+
+  def modificate(options, commands)
+    command_valid = true
+    # Добавить станцию в маршрут
+    if commands[0] == "1" && !commands[1].nil? && !commands[2].nil?
+      route_number = commands[1]
+      station_name = commands[2]
+      route = @routes.detect { |route| route.number == route_number }
+      station = @stations.detect { |station| station.name == station_name }
+
+      if !route.nil? && !station.nil?
+        result = route.add(station)
+        success_message = "Станция успешно добавлена в маршрут!"
+        failure_message = "Не удалось добавить станцию в маршрут!"
+        options[:message] = info_message(success_message) unless result.nil?
+        options[:message] = warning_message(failure_message) if result.nil?
+      else
+        failure_message = "Не удалось найти станцию или маршрут!"\
+          " Или вы пытаетесь добавить станцию, которая уже существует!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Удалить станцию из маршрута
+    elsif commands[0] == "2" && !commands[1].nil? && !commands[2].nil?
+      route_number = commands[1]
+      station_name = commands[2]
+      route = @routes.detect { |route| route.number == route_number }
+      station = @stations.detect { |station| station.name == station_name }
+
+      if !route.nil? && !station.nil?
+        result = route.remove(station)
+        success_message = "Станция успешно удалена из маршрута!"
+        failure_message = "Не удалось удалить станцию из маршрута!"
+        options[:message] = info_message(success_message) unless result.nil?
+        options[:message] = warning_message(failure_message) if result.nil?
+      else
+        failure_message = "Не удалось найти станцию или маршрут!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Назначить маршрут поезду
+    elsif commands[0] == "3" && !commands[1].nil? && !commands[2].nil?
+      route_number = commands[1]
+      train_number = commands[2]
+      route = @routes.detect { |route| route.number == route_number }
+      train = @trains.detect { |train| train.number == train_number }
+
+      if !route.nil? && !train.nil?
+        train.set_route(route)
+        success_message = "Маршрут успешно установлен для поезда!"
+        options[:message] = info_message(success_message)
+      else
+        failure_message = "Не удалось найти поезд или маршрут!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Добавить вагон к поезду
+    elsif commands[0] == "4" && !commands[1].nil?
+      train_number = commands[1]
+      train = @trains.detect { |train| train.number == train_number }
+
+      unless train.nil?
+        wagon = Wagon.new(train.type)
+        train.add_wagon(wagon)
+        success_message = "Вагон успешно добавлен к поезду!"
+        options[:message] = info_message(success_message)
+      else
+        failure_message = "Не удалось найти поезд!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Отцепить вагон от поезду
+    elsif commands[0] == "5" && !commands[1].nil?
+      train_number = commands[1]
+      train = @trains.detect { |train| train.number == train_number }
+
+      unless train.nil?
+        train.remove_last_wagon
+        success_message = "Вагон успешно отцеплен от поезда!"
+        options[:message] = info_message(success_message)
+      else
+        failure_message = "Не удалось найти поезд!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Отправить поезд по маршруту к следующей станции
+    elsif commands[0] == "6" && !commands[1].nil?
+      train_number = commands[1]
+      train = @trains.detect { |train| train.number == train_number }
+      
+      unless train.nil?
+        result = train.go_to_next_station
+        success_message = "Поезд отправился на следующую станцию по маршруту!"
+        failure_message = "Поезд не смог отправиться к следующий станции,"\
+          " возможно маршрут не задан или поезд уже находится на конечной станции!"
+        options[:message] = info_message(success_message) unless result.nil?
+        options[:message] = warning_message(failure_message) if result.nil?
+      else
+        failure_message = "Не удалось найти поезд!"
+        options[:message] = warning_message(failure_message)
+      end
+    # Отправить поезд по маршруту к следующей станции
+    elsif commands[0] == "7" && !commands[1].nil?
+      train_number = commands[1]
+      train = @trains.detect { |train| train.number == train_number }
+      
+      unless train.nil?
+        result = train.go_to_prev_station
+        success_message = "Поезд отправился на предыдущую станцию по маршруту!"
+        failure_message = "Поезд не смог отправиться к предыдущей станции,"\
+          " возможно маршрут не задан или поезд уже находится на начальной станции!"
+        options[:message] = info_message(success_message) unless result.nil?
+        options[:message] = warning_message(failure_message) if result.nil?
+      else
+        failure_message = "Не удалось найти поезд!"
+        options[:message] = warning_message(failure_message)
+      end
+    else
+      command_valid = false
+    end
+
+    command_valid
+  end
+
+  def show(options, commands)
+    command_valid = true
+    # Вывод всех станций
+    if commands[0] == "1"
+      options[:showed_data] = "\n------------- Станции -------------\n"
+      @stations.each { |station| options[:showed_data] += "#{station.name}\n" }
+      options[:showed_data] += "-----------------------------------\n\n"
+    # Вывод всех станций
+    elsif commands[0] == "2" && !commands[1].nil?
+      station_name = commands[1]
+      station = @stations.detect { |station| station.name == station_name }
+
+      unless station.nil?
+        options[:showed_data] =  "\n------ Поезда на станции: #{station_name} ------\n"
+        station.trains.each { |train| options[:showed_data] += "#{train.number}\n" }
+        options[:showed_data] += "-----------------------------------\n\n"
+      else
+        failure_message = "Не удалось найти станцию!"
+        options[:message] = warning_message(failure_message)
+      end
+    else
+      command_valid = false
+    end
+
+    command_valid
+  end
+
   def warning_command_message(command)
     "\n#{red("[WARNNING]")}  Не удалось распознать команду: \"#{command}\"\n\n"
   end

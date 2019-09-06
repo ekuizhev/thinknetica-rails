@@ -6,5 +6,5 @@ require_relative "cargo_train"
 require_relative "rail_road"
 
 rail_road = RailRoad.new
-# rail_road.seed
+rail_road.seed
 rail_road.menu

@@ -1,6 +1,14 @@
 require_relative 'train'
 
 class CargoTrain < Train
+  def initialize(number, wagons = [])
+    @number = number
+    @type = "cargo"
+    @wagons = wagons
+    @speed = 0
+    @route = nil
+  end
+
   def add_wagon(wagon)
     unless @wagons.include?(wagon) && @type == wagon.type
       @wagons << wagon 

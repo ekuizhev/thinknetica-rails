@@ -1,6 +1,8 @@
 class Train
   attr_reader :number, :speed, :wagons, :type
-  @@allowed_types = ["cargo", "passanger"]
+
+  MAX_SPEED = 220.freeze
+  ALLOWED_TYPES = ["cargo", "passanger"].freeze
 
   def initialize(number, type, wagons = [])
     @number = number
@@ -62,11 +64,4 @@ class Train
     previous_station.arrive_train(self)
     @current_station_index -= 1
   end
-
-  def self.allowed_types
-    @@allowed_types
-  end
-  
-  protected
-  MAX_SPEED = 220
 end

@@ -104,7 +104,7 @@ class RailRoad
 
   def handle_main_menu(options)
     puts MENU[0]
-    user_input = gets.chomp!
+    user_input = gets.chomp
     
     if user_input == "0"
       options[:is_exit] = true and return
@@ -123,7 +123,7 @@ class RailRoad
 
   def handle_sub_menu(options)
     puts MENU[options[:sub_menu_number]]
-    user_input = gets.chomp!
+    user_input = gets.chomp
     
     if user_input == "menu"
       options[:main_menu] = true and return

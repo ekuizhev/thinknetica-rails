@@ -1,15 +1,26 @@
+require_relative 'manufacturer_company'
+require_relative 'instance_counter'
+
 class Train
+  include ManufacturerCompany
+  include InstanceCounter
   attr_reader :number, :speed, :wagons, :type
 
   MAX_SPEED = 220.freeze
   ALLOWED_TYPES = ["cargo", "passanger"].freeze
 
   def initialize(number, type, wagons = [])
+    unless ALLOWED_TYPES.include?(type)
+      raise TypeError.new("Allowed types: #{ALLOWED_TYPES.join(', ')}")
+    end
+  
     @number = number
     @type = type
     @wagons = wagons
     @speed = 0
     @route = nil
+    
+    register_instance
   end
 
   def stop
@@ -63,5 +74,9 @@ class Train
     current_station.depart_train(self)
     previous_station.arrive_train(self)
     @current_station_index -= 1
+  end
+
+  def self.find(number)
+    self.instances.find { |train| train.number == number }
   end
 end

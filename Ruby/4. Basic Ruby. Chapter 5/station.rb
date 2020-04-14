@@ -7,7 +7,8 @@ class Station
   def initialize(name)
     @name = name
     @trains = []
-    register_instance
+
+    register
   end
 
   def trains_by_type(type)

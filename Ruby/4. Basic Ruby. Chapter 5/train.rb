@@ -20,7 +20,7 @@ class Train
     @speed = 0
     @route = nil
     
-    register_instance
+    register
   end
 
   def stop

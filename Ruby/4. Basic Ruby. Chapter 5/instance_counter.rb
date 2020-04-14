@@ -1,5 +1,3 @@
-require 'set'
-
 module InstanceCounter
   def self.included(base)
     base.extend ClassMethods
@@ -9,8 +7,7 @@ module InstanceCounter
   module InstanceMethods
     protected
 
-    def register_instance
-      raise "Dublicat error" if self.class.instances.include?(self) 
+    def register
       self.class.send :add_instance, self
     end
   end
@@ -18,14 +15,14 @@ module InstanceCounter
   module ClassMethods
     def instances
       # class-level instance variable
-      @instances ||= Set.new
-      @instances.to_a
+      @instances ||= []
+      @instances
     end
 
     protected
 
     def add_instance(instance)
-      @instances.add(instance)
+      @instances << instance
     end
   end
 end

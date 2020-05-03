@@ -8,17 +8,15 @@ class Train
 
   MAX_SPEED = 220.freeze
   ALLOWED_TYPES = ["cargo", "passanger"].freeze
+  NUMBER_FORMAT = /^[\da-z]{3}(-[\da-z]{2})?$/i
 
   def initialize(number, type, wagons = [])
-    unless ALLOWED_TYPES.include?(type)
-      raise TypeError.new("Allowed types: #{ALLOWED_TYPES.join(', ')}")
-    end
-  
     @number = number
     @type = type
     @wagons = wagons
     @speed = 0
     @route = nil
+    validate!
     
     register
   end
@@ -78,5 +76,19 @@ class Train
 
   def self.find(number)
     self.instances.find { |train| train.number == number }
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
+  protected
+
+  def validate!
+    raise TypeError.new("Train type is not allowed!") unless ALLOWED_TYPES.include?(@type)
+    raise RuntimeError.new("Number format is not allowed!") if @number !~ NUMBER_FORMAT
   end
 end

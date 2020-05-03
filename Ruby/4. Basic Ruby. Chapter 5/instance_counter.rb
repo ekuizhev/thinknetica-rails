@@ -13,15 +13,20 @@ module InstanceCounter
   end
   
   module ClassMethods
+    # почему-то не инициализируется, приходится в методах
+    # делать принудительную инициализацию, если не существует
+    # class-level instance variable
+    @instances = []
+
     def instances
-      # class-level instance variable
       @instances ||= []
       @instances
     end
-
+    
     protected
-
+    
     def add_instance(instance)
+      @instances ||= []
       @instances << instance
     end
   end

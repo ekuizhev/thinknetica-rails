@@ -26,4 +26,17 @@ class Station
   def self.all
     self.instances
   end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
+  private
+
+  def validate!
+    raise RuntimeError.new("Name is not be a null!") if @name.nil? || @name.empty?
+  end
 end

@@ -6,10 +6,20 @@ class Wagon
   ALLOWED_TYPES = ["cargo", "passanger"].freeze
 
   def initialize(type)
-    unless ALLOWED_TYPES.include?(type)
-      raise TypeError.new("Allowed types: #{ALLOWED_TYPES.join(', ')}")
-    end
-
     @type = type
+    validate!
+  end
+
+  def valid?
+    validate!
+    true
+  rescue
+    false
+  end
+
+  private
+
+  def validate!
+    raise TypeError.new("Wagon type is not allowed!") unless ALLOWED_TYPES.include?(@type)
   end
 end

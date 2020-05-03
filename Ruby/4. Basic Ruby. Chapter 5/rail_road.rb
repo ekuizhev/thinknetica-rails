@@ -123,29 +123,37 @@ class RailRoad
 
   def handle_sub_menu(options)
     puts MENU[options[:sub_menu_number]]
-    user_input = gets.chomp
-    
-    if user_input == "menu"
-      options[:main_menu] = true and return
-    end
-    
-    if user_input == "0"
-      options[:is_exit] = true and return
-    end
-    
-    has_error = false
-    sub_menu_number = options[:sub_menu_number]
-    commands = user_input.split(" ")
 
-    # если создание
-    if sub_menu_number == 1
-      command_valid = create(options, commands)
-    # если модификация
-    elsif sub_menu_number == 2
-      command_valid = modificate(options, commands)
-    # иначе отображение sub_menu_number == 3
-    else
-      command_valid = show(options, commands)
+    begin
+      user_input = gets.chomp
+      
+      if user_input == "menu"
+        options[:main_menu] = true and return
+      end
+      
+      if user_input == "0"
+        options[:is_exit] = true and return
+      end
+      
+      has_error = false
+      sub_menu_number = options[:sub_menu_number]
+      commands = user_input.split(" ")
+
+    
+      # если создание
+      if sub_menu_number == 1
+        command_valid = create(options, commands)
+      # если модификация
+      elsif sub_menu_number == 2
+        command_valid = modificate(options, commands)
+      # иначе отображение sub_menu_number == 3
+      else
+        command_valid = show(options, commands)
+      end
+    rescue StandardError => e  
+      puts warning_message(e.message).chomp
+      puts info_message("Try again")
+      retry
     end
     
     options[:message] = warning_command_message(user_input) unless command_valid
@@ -159,16 +167,18 @@ class RailRoad
       @stations << Station.new(name)
       options[:message] = info_message("Станция была успешно создана!")
     # Создание поезда
-    elsif commands[0] == "2" && !commands[1].nil? && Train::ALLOWED_TYPES.include?(commands[2])
+    elsif commands[0] == "2" && !commands[1].nil?
       number = commands[1]
       type = commands[2]
       
       if type == "cargo"
         @trains << CargoTrain.new(number)
-      else
+      elsif type == "passanger"
         @trains << PassangerTrain.new(number)
+      else
+        @trains << Train.new(number, type)
       end
-        
+
       options[:message] = info_message("Поезд был успешно создан!")
     # Создание маршрута
     elsif commands[0] == "3" && !commands[1].nil? && !commands[2].nil? && !commands[3].nil?

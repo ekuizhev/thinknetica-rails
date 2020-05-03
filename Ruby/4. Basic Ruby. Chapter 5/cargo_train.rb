@@ -7,6 +7,7 @@ class CargoTrain < Train
     @wagons = wagons
     @speed = 0
     @route = nil
+    validate!
   end
 
   def add_wagon(wagon)

@@ -7,18 +7,16 @@ class Train
   attr_reader :number, :speed, :wagons, :type
 
   MAX_SPEED = 220.freeze
-  ALLOWED_TYPES = ["cargo", "passanger"].freeze
+  ALLOWED_TYPES = ["cargo", "passenger"].freeze
   NUMBER_FORMAT = /^[\da-z]{3}(-[\da-z]{2})?$/i
 
-  def initialize(number, type, wagons = [])
-    @number = number
-    @type = type
-    @wagons = wagons
-    @speed = 0
-    @route = nil
-    validate!
-    
-    register
+  def initialize
+    error_messages = "You have to create only cargo or passenger class instance!"
+    raise RuntimeError.new(error_messages)
+  end
+
+  def to_s
+    "Номер поезда: #{@number}, тип: #{@type}, кол-во вагонов: #{@wagons.count}; станция: #{current_station.name unless current_station.nil?};"
   end
 
   def stop
@@ -83,6 +81,24 @@ class Train
     true
   rescue
     false
+  end
+
+  def add_wagon(wagon)
+    unless @wagons.include?(wagon) && @type == wagon.type
+      @wagons << wagon 
+    end
+  end
+
+  def remove_wagon(wagon)
+    @wagons.delete(wagon) unless @type == wagon.type
+  end
+
+  def pass_wagons_through(&block)
+    unless block_given?
+      return puts "Block not given"
+    end
+
+    @wagons.each { |wagon| block.call(wagon) }
   end
 
   protected

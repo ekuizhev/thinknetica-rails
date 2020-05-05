@@ -1,9 +1,9 @@
 require_relative 'train'
 
-class CargoTrain < Train
+class PassengerTrain < Train
   def initialize(number, wagons = [])
     @number = number
-    @type = "cargo"
+    @type = "passenger"
     @wagons = wagons
     @speed = 0
     @route = nil

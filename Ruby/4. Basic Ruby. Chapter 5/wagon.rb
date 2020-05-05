@@ -2,24 +2,20 @@ require_relative 'manufacturer_company'
 
 class Wagon
   include ManufacturerCompany
-  attr_reader :type
-  ALLOWED_TYPES = ["cargo", "passanger"].freeze
+  attr_reader :type, :number
 
-  def initialize(type)
-    @type = type
-    validate!
+  def initialize
+    error_messages = "You have to create only cargo or passenger class instance!"
+    raise RuntimeError.new(error_messages)
   end
 
-  def valid?
-    validate!
-    true
-  rescue
-    false
+  def to_s
+    "номер вагона: #{@number}; тип вагона: #{@type};"
   end
 
-  private
+  protected
 
   def validate!
-    raise TypeError.new("Wagon type is not allowed!") unless ALLOWED_TYPES.include?(@type)
+    raise RuntimeError.new("Number is not be a null!") if @number.empty?
   end
 end

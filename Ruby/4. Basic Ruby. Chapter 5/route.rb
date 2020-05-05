@@ -2,18 +2,23 @@ class Route
   attr_reader :stations, :number
 
   def initialize(number, source, destination)
-    @number = number
+    @number = number.to_s
     @stations = [source, destination]
   end
 
   def add(station)
-    return if @stations.include?(station)
+    if station.nil? || @stations.include?(station)
+      return puts "Station in null or already exists!"
+    end
+
     @stations.insert(-2, station)
   end
 
   def remove(station)
-    return if [@stations.first, @stations.last].include?(station)
-    
+    if [@stations.first, @stations.last].include?(station)
+      return puts "You can't delete first or last station!"
+    end
+
     @stations.delete(station)
   end
 
@@ -28,11 +33,14 @@ class Route
     false
   end
 
+  def station_invalid?(station)
+    station.nil? || station.empty?
+  end
+
   private
 
   def validate!
-    raise RuntimeError.new("Number is not be a null!") if @number.nil? || @number.empty?
-    raise RuntimeError.new("Source is not be a null!") if @source.nil? || @source.empty?
-    raise RuntimeError.new("Destination is not be a null!") if @destination.nil? || @destination.empty?
+    raise RuntimeError.new("Number is not be a null!") if @number.empty?
+    raise RuntimeError.new("Station is not be a null!") if @stations.any?(&:nil?)
   end
 end

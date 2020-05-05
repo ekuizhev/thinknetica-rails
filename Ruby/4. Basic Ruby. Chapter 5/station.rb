@@ -23,6 +23,14 @@ class Station
     @trains.delete(train)
   end
 
+  def pass_trains_through(&block)
+    unless block_given?
+      return puts "Block not given"
+    end
+
+    @trains.each { |train| block.call(train) }
+  end
+
   def self.all
     self.instances
   end

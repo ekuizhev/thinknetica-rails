@@ -380,7 +380,7 @@ class RailRoad
       end
 
       options[:showed_data] =  "\n------ Поезда на станции: #{station_name} ------\n"
-      station.pass_trains_through do |train|
+      station.each_train do |train|
         options[:showed_data] += "#{train.to_s}\n"
       end
       options[:showed_data] += "-----------------------------------\n\n"
@@ -396,7 +396,7 @@ class RailRoad
       end
 
       options[:showed_data] =  "\n------ Вагоны поезда: #{train_number} ------\n"
-      train.pass_wagons_through do |wagon|
+      train.each_wagon do |wagon|
         options[:showed_data] += "#{wagon.to_s}\n"
       end
       options[:showed_data] += "-----------------------------------\n\n"

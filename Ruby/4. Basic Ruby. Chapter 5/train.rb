@@ -93,12 +93,12 @@ class Train
     @wagons.delete(wagon) unless @type == wagon.type
   end
 
-  def pass_wagons_through(&block)
+  def each_wagon
     unless block_given?
-      return puts "Block not given"
+      raise RuntimeError.new("Block not given")
     end
 
-    @wagons.each { |wagon| block.call(wagon) }
+    @wagons.each { |wagon| yield(wagon) }
   end
 
   protected

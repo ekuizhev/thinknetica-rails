@@ -24,8 +24,7 @@ module RailRoadCreationCategory
 
   def create_cargo_train
     number = @config[:arguments][1]
-    total_volume = @config[:arguments][2]
-    @trains << CargoTrain.new(number, total_volume)
+    @trains << CargoTrain.new(number)
 
     message = "Поезд \"#{number}\" был успешно создан!"
     set_config_message(message)
@@ -33,8 +32,7 @@ module RailRoadCreationCategory
 
   def create_passenger_train
     number = @config[:arguments][1]
-    seats_number = @config[:arguments][2]
-    @trains << PassengerTrain.new(number, seats_number)
+    @trains << PassengerTrain.new(number)
 
     message = "Поезд \"#{number}\" был успешно создан!"
     set_config_message(message)

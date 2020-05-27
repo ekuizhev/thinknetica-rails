@@ -5,8 +5,7 @@ class Wagon
   attr_reader :type, :number
 
   def initialize
-    error_messages = "You have to create only cargo or passenger class instance!"
-    raise RuntimeError.new(error_messages)
+    raise "You have to create only cargo or passenger class instance!"
   end
 
   def to_s
@@ -16,6 +15,14 @@ class Wagon
   protected
 
   def validate!
-    raise RuntimeError.new("Number is not be a null!") if @number.empty?
+    raise "Number is not be a null!" if @number.empty?
+  end
+
+  def passenger?
+    @type == "passenger"
+  end
+
+  def cargo?
+    @type == "cargo"
   end
 end

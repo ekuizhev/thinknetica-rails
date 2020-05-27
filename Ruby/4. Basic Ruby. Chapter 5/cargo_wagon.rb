@@ -3,8 +3,8 @@ require_relative 'wagon'
 class CargoWagon < Wagon
   attr_reader :total_volume, :occupied_volume
 
-  DEFAULT_TOTAL_VOLUME = 1500.freeze
-  MAX_TOTAL_VOLUME = 3000.freeze
+  DEFAULT_TOTAL_VOLUME = 1500
+  MAX_TOTAL_VOLUME = 3000
 
   def initialize(number, total_volume = DEFAULT_TOTAL_VOLUME)
     @number = number.to_s
@@ -33,7 +33,7 @@ class CargoWagon < Wagon
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -42,6 +42,6 @@ class CargoWagon < Wagon
   def validate!
     super
     err_volume_message = "Total volume is not valid! Max volume is #{MAX_TOTAL_VOLUME}"
-    raise RuntimeError.new(err_volume_message) if @total_volume.zero? || @total_volume > MAX_TOTAL_VOLUME
+    raise err_volume_message if @total_volume.zero? || @total_volume > MAX_TOTAL_VOLUME
   end
 end

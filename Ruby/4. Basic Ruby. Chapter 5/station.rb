@@ -24,27 +24,28 @@ class Station
   end
 
   def each_train
-    unless block_given?
-      raise RuntimeError.new("Block not given")
-    end
+    raise "Block not given" unless block_given?
 
     @trains.each { |train| yield(train) }
   end
 
   def self.all
-    self.instances
+    instances
   end
 
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
   private
 
   def validate!
-    raise RuntimeError.new("Name is not be a null!") if @name.nil? || @name.empty?
+    raise ArgumentError.new("Name is required!", @name) if @name.nil?
+
+    type_err_mess = "Name nust be a string!"
+    raise TypeError.new(type_err_mess, @name) unless @name.is_a? String
   end
 end

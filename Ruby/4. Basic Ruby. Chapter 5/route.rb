@@ -7,29 +7,29 @@ class Route
   end
 
   def add(station)
-    if station.nil? || @stations.include?(station)
-      return puts "Station in null or already exists!"
-    end
+    return false if station.nil? || @stations.include?(station)
 
     @stations.insert(-2, station)
+
+    true
   end
 
   def remove(station)
-    if [@stations.first, @stations.last].include?(station)
-      return puts "You can't delete first or last station!"
-    end
+    return false if [@stations.first, @stations.last].include?(station)
 
     @stations.delete(station)
+
+    true
   end
 
   def show_stations
-    @stations.each {|station| puts station.name}
+    @stations.each { |station| puts station.name }
   end
 
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -40,7 +40,7 @@ class Route
   private
 
   def validate!
-    raise RuntimeError.new("Number is not be a null!") if @number.empty?
-    raise RuntimeError.new("Station is not be a null!") if @stations.any?(&:nil?)
+    raise "Number is not be a null!" if @number.empty?
+    raise "Station is not be a null!" if @stations.any?(&:nil?)
   end
 end

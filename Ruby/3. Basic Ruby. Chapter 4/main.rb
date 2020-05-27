@@ -16,7 +16,7 @@ route1.remove(timashevsk)
 # route1.show_stations
 
 train1 = Train.new("11111", "cargo", 10)
-train1.set_route(route1)
+train1.assign_route(route1)
 # puts "slavyansk trains: ", slavyansk.trains
 
 train1.go_to_next_station
@@ -27,5 +27,4 @@ puts train1.current_station.name
 puts train1.next_station.name
 puts train1.previous_station.name
 
-
-train2 = Train.new("22222", "passenger", 6)
+# train2 = Train.new("22222", "passenger", 6)

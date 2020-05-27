@@ -11,21 +11,21 @@ module InstanceCounter
       self.class.send :add_instance, self
     end
   end
-  
+
   module ClassMethods
-    # почему-то не инициализируется, приходится в методах
-    # делать принудительную инициализацию, если не существует
-    # class-level instance variable
+    # class-level instance variable not initializing here
     @instances = []
 
     def instances
+      # force initialize for the first time
       @instances ||= []
       @instances
     end
-    
+
     protected
-    
+
     def add_instance(instance)
+      # and too force initialize
       @instances ||= []
       @instances << instance
     end

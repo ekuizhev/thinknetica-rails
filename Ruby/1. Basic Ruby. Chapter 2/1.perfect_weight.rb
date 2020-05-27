@@ -6,7 +6,7 @@ person_height = gets.to_i
 
 perfect_weight = person_height - 110
 
-if perfect_weight > 0
+if perfect_weight.positive?
   puts "#{person_name}, your perfect weight is #{perfect_weight}!"
 else
   puts "Your weight is already optimal!"

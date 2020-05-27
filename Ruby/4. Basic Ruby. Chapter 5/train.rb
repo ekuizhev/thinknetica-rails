@@ -2,21 +2,21 @@ require_relative 'manufacturer_company'
 require_relative 'instance_counter'
 
 class Train
-  include ManufacturerCompany
   include InstanceCounter
+  include ManufacturerCompany
   attr_reader :number, :speed, :wagons, :type
 
-  MAX_SPEED = 220.freeze
-  ALLOWED_TYPES = ["cargo", "passenger"].freeze
-  NUMBER_FORMAT = /^[\da-z]{3}(-[\da-z]{2})?$/i
+  MAX_SPEED = 220
+  ALLOWED_TYPES = %w[cargo passenger].freeze
+  NUMBER_FORMAT = /^[\da-z]{3}(-[\da-z]{2})?$/i.freeze
 
   def initialize
-    error_messages = "You have to create only cargo or passenger class instance!"
-    raise RuntimeError.new(error_messages)
+    raise "You have to create only cargo or passenger class instance!"
   end
 
   def to_s
-    "Номер поезда: #{@number}, тип: #{@type}, кол-во вагонов: #{@wagons.count}; станция: #{current_station.name unless current_station.nil?};"
+    "Номер поезда: #{@number}, тип: #{@type}, кол-во вагонов: \
+    #{@wagons.count}; станция: #{current_station&.name};"
   end
 
   def stop
@@ -25,12 +25,9 @@ class Train
 
   def change_speed(speed)
     return if @speed + speed > MAX_SPEED
+
     @speed += speed
     @speed = 0 if speed.negative?
-  end
-
-  def add_wagon(wagon)
-    @wagons << wagon
   end
 
   def remove_last_wagon
@@ -43,14 +40,15 @@ class Train
 
   def previous_station
     return if @route.nil? || @current_station_index < 1
+
     @route.stations[@current_station_index - 1]
   end
-  
+
   def next_station
     @route.stations[@current_station_index + 1] unless @route.nil?
   end
 
-  def set_route(route)
+  def assign_route(route)
     @route = route
     @current_station_index = 0
     current_station.arrive_train(self)
@@ -73,20 +71,20 @@ class Train
   end
 
   def self.find(number)
-    self.instances.find { |train| train.number == number }
+    instances.find { |train| train.number == number }
   end
 
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
   def add_wagon(wagon)
-    unless @wagons.include?(wagon) && @type == wagon.type
-      @wagons << wagon 
-    end
+    return if @wagons.include?(wagon) || @type != wagon.type
+
+    @wagons << wagon
   end
 
   def remove_wagon(wagon)
@@ -94,9 +92,7 @@ class Train
   end
 
   def each_wagon
-    unless block_given?
-      raise RuntimeError.new("Block not given")
-    end
+    raise "Block not given" unless block_given?
 
     @wagons.each { |wagon| yield(wagon) }
   end
@@ -104,7 +100,19 @@ class Train
   protected
 
   def validate!
-    raise TypeError.new("Train type is not allowed!") unless ALLOWED_TYPES.include?(@type)
-    raise RuntimeError.new("Number format is not allowed!") if @number !~ NUMBER_FORMAT
+    raise TypeError.new("Train type is not allowed!", @type) if type_invalid?
+    raise "Number format is not allowed!" if @number !~ NUMBER_FORMAT
+  end
+
+  def type_invalid?
+    !ALLOWED_TYPES.include?(@type)
+  end
+
+  def passenger?
+    @type == "passenger"
+  end
+
+  def cargo?
+    @type == "cargo"
   end
 end

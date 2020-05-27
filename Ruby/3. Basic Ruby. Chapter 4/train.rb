@@ -15,16 +15,17 @@ class Train
 
   def change_speed(speed)
     return if @speed + speed > MAX_SPEED
+
     @speed += speed
     @speed = 0 if speed.negative?
   end
 
   def add_wagon
-    @wagon_count += 1 if @speed == 0
+    @wagon_count += 1 if @speed.zero?
   end
 
   def remove_wagon
-    @wagon_count -= 1 if @wagon_count > 0 && @speed == 0
+    @wagon_count -= 1 if @wagon_count.positive? && @speed.zero?
   end
 
   def current_station
@@ -32,15 +33,16 @@ class Train
   end
 
   def previous_station
-    return unless @current_station_index > 0
+    return unless @current_station_index.positive?
+
     @route.stations[@current_station_index - 1]
   end
-  
+
   def next_station
     @route.stations[@current_station_index + 1]
   end
 
-  def set_route(route)
+  def assign_route(route)
     @route = route
     @current_station_index = 0
     current_station.arrive_train(self)

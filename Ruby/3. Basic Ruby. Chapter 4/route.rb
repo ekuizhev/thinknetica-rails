@@ -11,11 +11,11 @@ class Route
 
   def remove(station)
     return if [@stations.first, @stations.last].include?(station)
-    
+
     @stations.delete(station)
   end
 
   def show_stations
-    @stations.each {|station| puts station.name}
+    @stations.each { |station| puts station.name }
   end
 end
